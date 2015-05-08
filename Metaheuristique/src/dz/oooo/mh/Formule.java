@@ -82,5 +82,20 @@ public class Formule {
 		}
 		return formule;
 	}
+	
+	public Solution genererRandom(){
+		Solution random=new Solution();
+		for(int i=0;i<nbLitteraux;i++){
+			short litt=(short) (((Math.random()*100)%this.nbLitteraux)+1);
+			short signe=(short) ((Math.random()>0.5) ? 1 : -1);
+			random.getLitteraux().add((short) (litt*signe));
+		}
+		random.setTauxSat(this);
+		return random;
+	}
+	
+	public Solution rechercheLocale(){
+		return null;
+	}
 
 }
