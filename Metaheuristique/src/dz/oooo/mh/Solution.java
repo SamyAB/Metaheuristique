@@ -2,12 +2,13 @@ package dz.oooo.mh;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 public class Solution {
 	private ArrayList<Short> litteraux;
 	private short nbClausesSat;
 	private boolean unsat; 
-	
+
 	public Solution(){
 		this.litteraux=new ArrayList<Short>();
 		this.nbClausesSat=0;
@@ -25,7 +26,7 @@ public class Solution {
 	public short getTauxSat() {
 		return nbClausesSat;
 	}
-	
+
 	public boolean isUnsat() {
 		return unsat;
 	}
@@ -37,8 +38,9 @@ public class Solution {
 	public void setTauxSat(short tauxSat) {
 		this.nbClausesSat = tauxSat;
 	}
-	
+
 	public void setTauxSat(Formule f){
+		this.unsat=false;
 		int nbClausesSat=0;
 		byte[] valSat=new byte[f.getNbClauses()];
 		for(int i=0;i<this.litteraux.size() && !this.unsat;i++){
@@ -67,15 +69,61 @@ public class Solution {
 		}
 		this.nbClausesSat=(short)nbClausesSat;
 	}
-	
+
 	public String toString(){
-		String solution="";
+		String solution="Le taux de satisfaction est de : "+this.nbClausesSat+"\n";
+;
 		Iterator<Short> litteraux=this.litteraux.iterator();
-		solution=litteraux.next().toString();
+		solution+=litteraux.next().toString();
 		while(litteraux.hasNext()){
 			solution+=(", "+litteraux.next().toString());
 		}
 		return solution;
 	}
-	
+
+	public LinkedList<Solution> voisinage(){
+		LinkedList<Solution> voisins=new LinkedList<Solution>();
+		for(int i=0;i<this.litteraux.size();i++){
+			Solution s=(Solution) this.clone();
+			s.getLitteraux().set(i, (short) (-1*this.litteraux.get(i)));
+			voisins.add(s);
+		}
+		return voisins;
+	}
+
+	public LinkedList<Solution> voisinage(Formule f){
+		LinkedList<Solution> voisins=new LinkedList<Solution>();
+		for(int i=0;i<this.litteraux.size();i++){
+			Solution s=(Solution) this.clone();
+			s.getLitteraux().set(i, (short) (-1*this.litteraux.get(i)));
+			s.setTauxSat(f);
+			if(!s.isUnsat()){
+				voisins.add(s);
+			}
+
+		}
+		return voisins;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Solution clone(){
+		Solution s=new Solution();
+		s.setLitteraux(((ArrayList<Short>) this.litteraux.clone()));
+		s.setTauxSat(this.nbClausesSat);
+		s.setUnsat(this.unsat);
+		return s;
+	}
+
+	public Solution bestVoisin(Formule f){
+		Solution best=this;
+		for(int i=0;i<this.litteraux.size();i++){
+			Solution s=(Solution) this.clone();
+			s.getLitteraux().set(i, (short) (-1*this.litteraux.get(i)));
+			s.setTauxSat(f);
+			if(!s.isUnsat() && s.getTauxSat()>best.getTauxSat()){
+				best=s;
+			}
+		}
+		return best;
+	}
 }

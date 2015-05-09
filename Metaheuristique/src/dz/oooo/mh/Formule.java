@@ -85,8 +85,8 @@ public class Formule {
 	
 	public Solution genererRandom(){
 		Solution random=new Solution();
-		for(int i=0;i<nbLitteraux;i++){
-			short litt=(short) (((Math.random()*100)%this.nbLitteraux)+1);
+		for(int i=1;i<=nbLitteraux;i++){
+			short litt=(short) (i);
 			short signe=(short) ((Math.random()>0.5) ? 1 : -1);
 			random.getLitteraux().add((short) (litt*signe));
 		}
@@ -95,7 +95,18 @@ public class Formule {
 	}
 	
 	public Solution rechercheLocale(){
-		return null;
+		Solution s=genererRandom();
+		int i=0;
+		while(s.getTauxSat()!=this.nbClauses && i<ClasseMain.getNombreIteration()){
+			Solution tmp=s.bestVoisin(this);
+			if(s==tmp){
+				s=genererRandom();
+			}
+			else{
+				s=tmp;
+			}
+		}
+		return s;
 	}
 
 }
