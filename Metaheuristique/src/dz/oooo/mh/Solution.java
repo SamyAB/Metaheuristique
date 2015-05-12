@@ -104,18 +104,14 @@ public class Solution {
 			Solution s=(Solution) this.clone();
 			s.getLitteraux().set(i, (short) (-1*this.litteraux.get(i)));
 			s.setTauxSat(f);
-			if(!s.isUnsat()){
-				voisins.add(s);
-			}
-
+			voisins.add(s);
 		}
 		return voisins;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Solution clone(){
 		Solution s=new Solution();
-		s.setLitteraux(((ArrayList<Short>) this.litteraux.clone()));
+		s.setLitteraux(new ArrayList<Short> (this.litteraux));
 		s.setTauxSat(this.nbClausesSat);
 		s.setUnsat(this.unsat);
 		return s;
@@ -129,7 +125,7 @@ public class Solution {
 			s.getLitteraux().set(i, (short) (-1*this.litteraux.get(i)));
 			s.setTauxSat(f);
 			s.setId(i);
-			if(!s.isUnsat() && s.getTauxSat()>=best.getTauxSat()){
+			if(s.getTauxSat()>best.getTauxSat()){
 				best=s;
 			}
 		}
@@ -144,7 +140,7 @@ public class Solution {
 			s.getLitteraux().set(i, (short) (-1*this.litteraux.get(i)));
 			s.setTauxSat(f);
 			s.setId(i);
-			if(!s.isUnsat() && s.getTauxSat()>=best.getTauxSat() && !LT.contains(s)){
+			if(s.getTauxSat()>best.getTauxSat() && !LT.contains(s)){
 				best=s;
 			}
 		}

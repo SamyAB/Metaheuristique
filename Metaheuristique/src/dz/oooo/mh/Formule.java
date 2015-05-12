@@ -99,7 +99,7 @@ public class Formule {
 		int i=0;
 		while(s.getTauxSat()!=this.nbClauses && i<ClasseMain.getNombreIteration()){
 			Solution tmp=s.bestVoisin(this);
-			if(s.getId()==-1){
+			if(tmp.getId()==-1){
 				s=genererRandom();
 			}
 			else{
@@ -112,17 +112,21 @@ public class Formule {
 	
 	public Solution rechercheTaboue(){
 		Solution s=genererRandom();
+		int tailleTaboue=this.nbLitteraux;
 		ArrayList<Solution> listeTaboue=new ArrayList<Solution>();
-		int i=0;
+		int i=0,indiceTaboue=0;
 		while(s.getTauxSat()!=this.nbClauses && i<ClasseMain.getNombreIteration()){
 			Solution tmp=s.bestVoisin(this,listeTaboue);
-			if(s.getId()==-1){
+			if(tmp.getId()==-1){
 				s=genererRandom();
 			}
 			else{
 				s=tmp;
-				listeTaboue.add(s);
-				System.out.println("Taille de la liste taboue"+listeTaboue.size());
+				if(listeTaboue.size()>=tailleTaboue){
+					listeTaboue.remove(indiceTaboue);
+				}
+				listeTaboue.add(indiceTaboue,s);
+				indiceTaboue=(indiceTaboue+1)%tailleTaboue;
 			}
 			i++;
 		}
