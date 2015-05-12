@@ -12,10 +12,12 @@ public class ClasseMain {
 	}
 
 	public static void main(String[] args) {
-		Formule f=new Formule("/mnt/Doc1/MEGAsync/m1s2/mh/Projet/hakubi.txt");
-		System.out.println(f.toString());
-		Solution s=f.rechercheLocale();
-		System.out.println(s.toString());
+		Formule f=new Formule("/home/samy/Documents/TPM1S1/TPcomplexite/TP3bis/uf50-01.cnf");
+		long debut=System.nanoTime();
+		//System.out.println(f.toString());
+		Solution s=f.rechercheTaboue();
+		long fin=System.nanoTime();
+		System.out.println(s.toString()+"\n "+((fin-debut)/1000000000.0));
 	}
 
 }

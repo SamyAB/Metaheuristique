@@ -2,13 +2,13 @@ package dz.oooo.mh;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 public class Solution {
 	private ArrayList<Short> litteraux;
 	private short nbClausesSat;
-	private boolean unsat; 
-
+	private boolean unsat;
+	private int id;
+	
 	public Solution(){
 		this.litteraux=new ArrayList<Short>();
 		this.nbClausesSat=0;
@@ -35,6 +35,14 @@ public class Solution {
 		this.unsat = unsat;
 	}
 
+	public int getId(){
+		return this.id;
+	}
+	
+	public void setId(int id){
+		this.id=id;
+	}
+	
 	public void setTauxSat(short tauxSat) {
 		this.nbClausesSat = tauxSat;
 	}
@@ -56,7 +64,6 @@ public class Solution {
 					valSat[j]++;
 					if(valSat[j]>=3){
 						this.unsat=true;
-						nbClausesSat=0;
 						break;
 					}
 				}
@@ -67,11 +74,11 @@ public class Solution {
 				j++;
 			}
 		}
-		this.nbClausesSat=(short)nbClausesSat;
+		this.nbClausesSat=(short) nbClausesSat;
 	}
 
 	public String toString(){
-		String solution="Le taux de satisfaction est de : "+this.nbClausesSat+"\n";
+		String solution="Le nombre de clases SAT est de : "+this.nbClausesSat+"\n";
 ;
 		Iterator<Short> litteraux=this.litteraux.iterator();
 		solution+=litteraux.next().toString();
@@ -81,8 +88,8 @@ public class Solution {
 		return solution;
 	}
 
-	public LinkedList<Solution> voisinage(){
-		LinkedList<Solution> voisins=new LinkedList<Solution>();
+	public ArrayList<Solution> voisinage(){
+		ArrayList<Solution> voisins=new ArrayList<Solution>();
 		for(int i=0;i<this.litteraux.size();i++){
 			Solution s=(Solution) this.clone();
 			s.getLitteraux().set(i, (short) (-1*this.litteraux.get(i)));
@@ -91,8 +98,8 @@ public class Solution {
 		return voisins;
 	}
 
-	public LinkedList<Solution> voisinage(Formule f){
-		LinkedList<Solution> voisins=new LinkedList<Solution>();
+	public ArrayList<Solution> voisinage(Formule f){
+		ArrayList<Solution> voisins=new ArrayList<Solution>();
 		for(int i=0;i<this.litteraux.size();i++){
 			Solution s=(Solution) this.clone();
 			s.getLitteraux().set(i, (short) (-1*this.litteraux.get(i)));
@@ -115,15 +122,33 @@ public class Solution {
 	}
 
 	public Solution bestVoisin(Formule f){
+		this.setId(-1);
 		Solution best=this;
 		for(int i=0;i<this.litteraux.size();i++){
 			Solution s=(Solution) this.clone();
 			s.getLitteraux().set(i, (short) (-1*this.litteraux.get(i)));
 			s.setTauxSat(f);
-			if(!s.isUnsat() && s.getTauxSat()>best.getTauxSat()){
+			s.setId(i);
+			if(!s.isUnsat() && s.getTauxSat()>=best.getTauxSat()){
 				best=s;
 			}
 		}
-		return best;
+	 	return best;
 	}
+	
+	public Solution bestVoisin(Formule f,ArrayList<Solution> LT){
+		this.setId(-1);
+		Solution best=this;
+		for(int i=0;i<this.litteraux.size();i++){
+			Solution s=(Solution) this.clone();
+			s.getLitteraux().set(i, (short) (-1*this.litteraux.get(i)));
+			s.setTauxSat(f);
+			s.setId(i);
+			if(!s.isUnsat() && s.getTauxSat()>=best.getTauxSat() && !LT.contains(s)){
+				best=s;
+			}
+		}
+	 	return best;
+	}
+
 }

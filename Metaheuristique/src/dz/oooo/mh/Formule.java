@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Formule {
+	
 	private ArrayList<Clause> clauses;
 	private int nbLitteraux;
 	private int nbClauses;
@@ -37,7 +38,6 @@ public class Formule {
 			while(i<this.nbClauses){
 				chaine=br.readLine();
 				mots=chaine.split(" ++");
-				System.out.println(mots[0]+" "+mots[1]+" "+mots[2]);
 				this.clauses.add(new Clause(Short.parseShort(mots[0]),Short.parseShort(mots[1]),Short.parseShort(mots[2])));
 				i++;
 			}
@@ -99,13 +99,39 @@ public class Formule {
 		int i=0;
 		while(s.getTauxSat()!=this.nbClauses && i<ClasseMain.getNombreIteration()){
 			Solution tmp=s.bestVoisin(this);
-			if(s==tmp){
+			if(s.getId()==-1){
 				s=genererRandom();
 			}
 			else{
 				s=tmp;
 			}
+			i++;
 		}
+		return s;
+	}
+	
+	public Solution rechercheTaboue(){
+		Solution s=genererRandom();
+		ArrayList<Solution> listeTaboue=new ArrayList<Solution>();
+		int i=0;
+		while(s.getTauxSat()!=this.nbClauses && i<ClasseMain.getNombreIteration()){
+			Solution tmp=s.bestVoisin(this,listeTaboue);
+			if(s.getId()==-1){
+				s=genererRandom();
+			}
+			else{
+				s=tmp;
+				listeTaboue.add(s);
+				System.out.println("Taille de la liste taboue"+listeTaboue.size());
+			}
+			i++;
+		}
+		System.out.println("Taille de la liste taboue"+listeTaboue.size());
+		return s;
+	}
+	
+	public Solution algorithmeGentique(){
+		Solution s=null;
 		return s;
 	}
 
