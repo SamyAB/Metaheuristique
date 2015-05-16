@@ -49,8 +49,8 @@ public class Solution {
 		this.id=id;
 	}
 	
-	public void setTauxSat(short tauxSat) {
-		this.nbClausesSat = tauxSat;
+	public void setNbClausesSat(short nbClausesSat) {
+		this.nbClausesSat = nbClausesSat;
 	}
 
 	//Méthode objective f
@@ -174,6 +174,7 @@ public class Solution {
 		Solution s=new Solution();
 		s.setLitteraux(new ArrayList<Short> (this.litteraux));
 		s.setUnsat(this.unsat);
+		s.setNbClausesSat(this.nbClausesSat);
 		return s;
 	}
 

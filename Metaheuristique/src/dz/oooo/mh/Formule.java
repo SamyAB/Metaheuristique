@@ -99,7 +99,7 @@ public class Formule {
 	//Méthode de recherche locale
 	public Solution rechercheLocale(int nbIterationsMax){
 		//Première solution générée aléatoirement
-		Solution s=genererRandom(),best=s;
+		Solution s=genererRandom(),best=s.clone();
 
 		//Initialisation du nombre d'itérations
 		int nbIterations=0;
@@ -110,7 +110,7 @@ public class Formule {
 			Solution tmp=s.bestVoisin(this);
 			if(tmp.getId()==-1){
 				if(best.getNbClausesSat()<s.getNbClausesSat()){
-					best=s;
+					best=s.clone();
 				}
 				s=genererRandom();
 			}
@@ -120,7 +120,7 @@ public class Formule {
 			nbIterations++;
 		}
 		if(best.getNbClausesSat()>s.getNbClausesSat()){
-			best=s;
+			best=s.clone();
 		}
 		return best;
 	}
@@ -128,7 +128,7 @@ public class Formule {
 	//Méthode de recherche taboue
 	public Solution rechercheTaboue(int nbIterationsMax){
 		//Première solutions générée aléatoirement
-		Solution s=genererRandom(),best=s;
+		Solution s=genererRandom(),best=s.clone();
 
 		//Initialisations
 		int tailleTaboue=this.nbLitteraux;
@@ -141,7 +141,7 @@ public class Formule {
 			Solution tmp=s.bestVoisin(this,listeTaboue);
 			if(tmp.getId()==-1){
 				if(best.getNbClausesSat()<s.getNbClausesSat()){
-					best=s;
+					best=s.clone();
 				}
 				s=genererRandom();
 			}
@@ -157,7 +157,7 @@ public class Formule {
 		}
 
 		if(best.getNbClausesSat()>s.getNbClausesSat()){
-			best=s;
+			best=s.clone();
 		}
 		return best;
 	}
@@ -268,7 +268,7 @@ public class Formule {
 	//Méthode d'optimisation par essaim d'abeilles
 	public Solution beeSwarmOptimisation(int nbIterationsMax,int flip,int nbChancesMax){
 		//BeeInit génère par la méthode beeInit
-		Solution sRef=beeInit(),best=sRef;
+		Solution sRef=beeInit(),best=sRef.clone();
 
 		//Initialisations
 		ArrayList<Solution> listeTaboue=new ArrayList<Solution>();
@@ -307,7 +307,7 @@ public class Formule {
 			//Comparaison du meilleur résultat avec le nouveau sRef
 			if(sRef.getNbClausesSat()>best.getNbClausesSat()){
 				System.out.println("Nouvelle meilleure performance:" +sRef.getNbClausesSat());
-				best=sRef;
+				best=sRef.clone();
 			}
 			nbIteration++;
 		}
