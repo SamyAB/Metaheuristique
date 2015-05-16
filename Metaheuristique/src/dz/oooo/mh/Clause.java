@@ -4,6 +4,7 @@ public class Clause {
 	private short[] litteraux;
 	
 	public Clause(){
+		//problème 3-SAT uniquement
 		this.litteraux=new short[3];
 	}
 	
