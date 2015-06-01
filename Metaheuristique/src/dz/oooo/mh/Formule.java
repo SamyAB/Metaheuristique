@@ -17,7 +17,7 @@ public class Formule {
 	public Formule(){
 		this.clauses=new ArrayList<Clause>();
 	}
-	
+
 	//Création de formule à partir d'un fichier
 	public Formule(String fichier){
 		this();
@@ -83,7 +83,7 @@ public class Formule {
 		}
 		return formule;
 	}
-	
+
 	//Fonction de génération de solution aléatoire
 	public Solution genererRandom(){
 		Solution random=new Solution();
@@ -125,6 +125,31 @@ public class Formule {
 		return best;
 	}
 
+	public Solution rechercheLocale(int nbIterationsMax,ArrayList<Solution> LT,Solution s){
+		//Première solution générée aléatoirement
+		Solution best=new Solution();
+
+		//Initialisation du nombre d'itérations
+		int nbIterations=0;
+
+		//Tant que le nombre de clauses SAT est différant du nombre total de clauses
+		//Et que le nombre d'itérations max n'est pas atteint 
+		while(s.getNbClausesSat()!=this.nbClauses && nbIterations<nbIterationsMax){
+			Solution tmp=s.bestVoisinCercle(this, LT);
+			if(tmp.getNbClausesSat()<s.getNbClausesSat()){
+				if(best.getNbClausesSat()<s.getNbClausesSat()){
+					best=s;
+				}
+				break;
+			}
+			else{
+				s=tmp;
+			}
+			nbIterations++;
+		}
+		return best;
+	}
+
 	//Méthode de recherche taboue
 	public Solution rechercheTaboue(int nbIterationsMax){
 		//Première solutions générée aléatoirement
@@ -161,61 +186,58 @@ public class Formule {
 		}
 		return best;
 	}
-	
-	//Méthode beeInit
+
+	//Méthode beeInit -problème 3SAT-
 	public Solution beeInit(){
 		Solution s=new Solution();
 		short[] tab=new short[this.nbLitteraux];
 		for(int i=0;i<this.nbLitteraux;i++){ 
 			tab[i]=0;
 		}
-		
+
 		Iterator<Clause> clauses=this.clauses.iterator();
 		while(clauses.hasNext()){
 			Clause tmp=clauses.next();
 			if(tmp.getLitteraux()[0]>0){
-				tab[tmp.getLitteraux()[0]]++;
+				tab[tmp.getLitteraux()[0]-1]++;
 			}
 			else{
-				tab[-1*tmp.getLitteraux()[0]]--;
+				tab[-1*tmp.getLitteraux()[0]-1]--;
 			}
 			if(tmp.getLitteraux()[1]>0){
-				tab[tmp.getLitteraux()[1]]++;
+				tab[tmp.getLitteraux()[1]-1]++;
 			}
 			else{
-				tab[-1*tmp.getLitteraux()[1]]--;
+				tab[-1*tmp.getLitteraux()[1]-1]--;
 			}
 			if(tmp.getLitteraux()[2]>0){
-				tab[tmp.getLitteraux()[2]]++;
+				tab[tmp.getLitteraux()[2]-1]++;
 			}
 			else{
-				tab[-1*tmp.getLitteraux()[2]]--;
+				tab[-1*tmp.getLitteraux()[2]-1]--;
 			}
 		}
-		
+
 		for(int i=0;i<this.nbLitteraux;i++){
 			if(tab[i]<0){
 				s.getLitteraux().add(i,(short)(-1*(i+1)));
 			}
-			else if(tab[i]>0){
+			else{
 				s.getLitteraux().add(i,(short)(i+1));
 			}
-			else{
-				int r=(Math.random()>0.5)? 1:-1;
-				s.getLitteraux().add(i,(short)(r*(i+1)));
-			}
+
 		}
-		
+
 		return s;
 	}
 
 	//Méthode de choix de la solution sRef de la méthode beeSwarmOptimisation
-	public Solution choixSRef(ArrayList<Solution> LT,ArrayList<Solution> danse,Solution previousSRef,int nbChancesMax){
+	public Solution choixSRef(ArrayList<Solution> LT,ArrayList<Solution> danse,Solution bestSRef,int nbChancesMax){
 		//Initialisations
 		int maxNbClausesSat=0;
 		Iterator<Solution> danses=danse.iterator();
 		Solution sRef=null;
-		
+
 		//Boucle de calcule de la meilleure solution (en qualité) de la table dance 
 		//Tant qu'il reste des éléments dans la table danse
 		while(danses.hasNext()){
@@ -227,25 +249,25 @@ public class Formule {
 			}
 		}
 
+		if(sRef==null){
+			return null;
+		}
+
 		//Calcule de la différence de qualité en la meilleur solution de la table dance et le précedent sRef
-		int difference=sRef.getNbClausesSat()-previousSRef.getNbClausesSat();
-		
+		int difference=sRef.getNbClausesSat()-bestSRef.getNbClausesSat();
+
 		//Si la meilleure solution de la table danse est meilleure que le précédant sRef
-		if(difference>0){
+		if(difference>0){	
 			ClasseMain.setNbChances(nbChancesMax); 
-			//System.out.println("Qualité de la solution intensifiée "+sRef.getNbClausesSat()+" "+previousSRef.getNbClausesSat());
-			sRef.setNbClausesSat(this);
-			//System.out.println("Qualité de la solution intensifiée vraiment"+sRef.getNbClausesSat());
 		}
 		else{
 			//Décrémentation du nombre de chances
 			ClasseMain.setNbChances(ClasseMain.getNbChances()-1);
-			System.out.println("Le nombe de chances est "+ClasseMain.getNbChances());
 			//Si le nombre de chances restant n'est pas nul
 			if(ClasseMain.getNbChances()<=0){
 				//Reset du nombre de chances au nombre max de chances
 				ClasseMain.setNbChances(nbChancesMax); 
-				
+
 				//Calcule de la meilleure solution (non taboue) en diversité
 				short bestDiversite=0;
 				danses=danse.iterator();
@@ -258,7 +280,6 @@ public class Formule {
 						sRef=tmp;
 					}
 				}
-				System.out.println("Qualité de la solution divercifiée "+sRef.getNbClausesSat()+" avec une distance ="+bestDiversite);
 			}
 		}
 		return sRef;
@@ -273,7 +294,8 @@ public class Formule {
 		//Initialisations
 		ArrayList<Solution> listeTaboue=new ArrayList<Solution>();
 		int nbIteration=0;
-		int indiceTaboue=0,tailleTaboue=this.nbLitteraux*100;
+		int indiceTaboue=0,tailleTaboue=this.nbLitteraux;
+		ClasseMain.setNbChances(nbChancesMax);
 		ArrayList<Solution> danse=null;
 
 		//Tant que le nombre de clause SAT est différant du nombre total de clauses
@@ -283,30 +305,32 @@ public class Formule {
 			if(listeTaboue.size()>=tailleTaboue){
 				listeTaboue.remove(indiceTaboue);
 			}
-
 			//Ajout de sRef à la liste taboue
 			listeTaboue.add(indiceTaboue,sRef);
 			indiceTaboue=(indiceTaboue+1)%tailleTaboue;
-						
+
 			//Création de la serachArea avec un flip périodique de valeur flip
 			Iterator<Solution> searchArea=sRef.flipPeriodique(flip).iterator();
 
 			//Vidange/initialisation de la table danse
 			danse=new ArrayList<Solution>();
-			
+
 			//Recherche des abeilles successivement
 			while(searchArea.hasNext()){
 				Solution tmp=searchArea.next();
 				//System.out.println("le meilleur voisin à un nombre de clasuses sat= "+bestVoisin.getNbClausesSat());
-				danse.add(tmp.bestVoisin(this));
+				danse.add(tmp.bestVoisinCercle(this, listeTaboue));
 			}
-			
+
 			//Choix du prochain sRef
-			sRef=choixSRef(listeTaboue, danse, sRef,nbChancesMax);
+			sRef=choixSRef(listeTaboue, danse, best,nbChancesMax);
+			if(sRef==null){
+				System.out.println("Lamentable echec");
+				break;
+			}
 
 			//Comparaison du meilleur résultat avec le nouveau sRef
 			if(sRef.getNbClausesSat()>best.getNbClausesSat()){
-				System.out.println("Nouvelle meilleure performance:" +sRef.getNbClausesSat());
 				best=sRef.clone();
 			}
 			nbIteration++;

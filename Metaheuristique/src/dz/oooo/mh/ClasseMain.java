@@ -59,7 +59,7 @@ public class ClasseMain {
 				System.out.println("Donnez la valeur du flip");
 				int flip=sc.nextInt();
 				sc.nextLine();
-				System.out.println("Donnez la valeur du nombre maimal de chances");
+				System.out.println("Donnez la valeur du nombre minimal de chances");
 				int nbChancesMax=sc.nextInt();
 				sc.nextLine();
 				long debutBSO=System.nanoTime();
@@ -118,11 +118,12 @@ public class ClasseMain {
 		}
 		else{
 			try {
-				PrintWriter output=new PrintWriter(new BufferedWriter(new FileWriter("fichierOutput.csv")));
-				for(int i=1;i<=7;i++){
+				for(int i=1;i<=5;i++){
 					Formule f=new Formule(String.valueOf(i));
-					output.print(f.getNbClauses()+",");
-					for(int nbIterationsMax=100;nbIterationsMax<100000;nbIterationsMax*=10){
+					//for(int nbIterationsMax=500;nbIterationsMax<=3000;nbIterationsMax+=500){
+					for(int nbIterationsMax=100;nbIterationsMax<=200;nbIterationsMax+=50){
+						/*PrintWriter output=new PrintWriter(new BufferedWriter(new FileWriter("outputLocalFichier"+i+"nbI"+nbIterationsMax+".csv")));
+						output.print(f.getNbClauses()+",");
 						//Recherche Locale
 						Solution best=new Solution();
 						double moyTemps=0,moyQualite=0,tempsBest=0;
@@ -142,7 +143,9 @@ public class ClasseMain {
 						moyQualite/=6;
 						output.print(moyTemps+","+moyQualite+",");
 						output.print(tempsBest+","+(best.getNbClausesSat()/f.getNbClauses())+",");
+						output.close();
 						
+						output=new PrintWriter(new BufferedWriter(new FileWriter("outputTaboueFichier"+i+"nbI"+nbIterationsMax+".csv")));
 						//Recherche taboue
 						best=new Solution();
 						tempsBest=0;
@@ -164,21 +167,24 @@ public class ClasseMain {
 						moyQualite/=6;
 						output.print(moyTemps+","+moyQualite+",");
 						output.print(tempsBest+","+(best.getNbClausesSat()/f.getNbClauses())+",");
-						
+						output.close();
+						*/
 						//BSO
-						best=new Solution();
-						tempsBest=0;
+						PrintWriter output=new PrintWriter(new BufferedWriter(new FileWriter("outputBSOLocalFichier"+i+"nbI"+nbIterationsMax+".csv")));
+						Solution best=new Solution();
+						double tempsBest=0;
 						int bestFlip=0;
 						int bestNbChancesMax=0;
-						moyQualite=0;
-						moyTemps=0;
+						double moyQualite=0;
+						double moyTemps=0;
 						for(int flip=2;flip<=4;flip+=2){
-							for(int nbChancesMax=2;nbChancesMax<5;nbChancesMax++){
+							for(int nbChancesMax=0;nbChancesMax<100;nbChancesMax+=20){
 								long debut=System.nanoTime();
 								Solution s=f.beeSwarmOptimisation(nbIterationsMax, flip, nbChancesMax);
 								long fin=System.nanoTime();
 								double temps=(fin-debut)/1000000000.0;
 								moyTemps+=temps;
+								output.print(temps+","+s.getNbClausesSat()+",");
 								moyQualite+=(s.getNbClausesSat()/(double)f.getNbClauses());
 								if(s.getNbClausesSat()>best.getNbClausesSat()){
 									best=s;
@@ -192,10 +198,10 @@ public class ClasseMain {
 						moyQualite/=6;
 						output.print(moyTemps+","+moyQualite+",");
 						output.print(tempsBest+","+(best.getNbClausesSat()/f.getNbClauses())+","+bestFlip+","+bestNbChancesMax+",");
+						output.close();
 					}
-					output.print("\n");
 				}
-				output.close();
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -203,6 +209,18 @@ public class ClasseMain {
 		}
 		
 		sc.close();
+		/*Solution s=new Solution();
+		short[] sh={1, 2, -3, -4, -5, -6, -7, -8, 9, 10, -11, 12, -13, -14, -15, 16, 17, 18, -19, 20, 21, 22, 23, -24, 25, 26, 27, -28, -29, -30, 31, 32, 33, 34, -35, -36, 37, 38, 39, 40, 41, -42, -43, 44, 45, 46, -47, 48, 49, 50, 51, 52, -53, 54, -55, 56, -57, 58, -59, -60, -61, -62, 63, 64, -65, 66, -67, -68, 69, -70, 71, -72, 73, 74, 75, -76, 77, 78, 79, 80, 81, -82, -83, -84, -85, 86, 87, 88, -89, 90, -91, -92, -93, 94, -95, -96, -97, 98, 99, -100
+};
+		for(int i=0;i<sh.length;i++){
+			s.getLitteraux().add(sh[i]);
+		}
+		
+		Formule f=new Formule("1");
+		
+		s.setNbClausesSat(f);
+		System.out.println("le nombre de clauses Sat "+s.getNbClausesSat());
+		*/
 	}
 
 }

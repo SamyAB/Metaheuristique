@@ -53,12 +53,12 @@ public class Solution {
 		this.nbClausesSat = nbClausesSat;
 	}
 
-	//Méthode objective f
+	//Méthode objective f -problème 3SAT-
 	public void setNbClausesSat(Formule f){
 		this.unsat=false;
 		int nbClausesSat=0;
 		byte[] valSat=new byte[f.getNbClauses()];
-		for(int i=0;i<this.litteraux.size() && !this.unsat;i++){
+		for(int i=0;i<this.litteraux.size();i++){
 			Iterator<Clause> clauses=f.getClauses().iterator();
 			int j=0;
 			while(clauses.hasNext()){
@@ -71,7 +71,6 @@ public class Solution {
 					valSat[j]++;
 					if(valSat[j]>=3){
 						this.unsat=true;
-						break;
 					}
 				}
 				if(clause.contains((short)(this.litteraux.get(i)))){
@@ -142,7 +141,6 @@ public class Solution {
 	public boolean equals(Solution s){
 		for(int i=0;i<this.litteraux.size();i++){
 			if((short)(this.litteraux.get(i))!=(short)(s.getLitteraux().get(i))){
-				System.out.println("les deux solutions sont différantes car "+this.litteraux.get(i)+" ≠ "+s.getLitteraux().get(i));
 				return false;
 			}
 		}
@@ -202,6 +200,21 @@ public class Solution {
 			s.setNbClausesSat(f);
 			s.setId(i);
 			if(s.getNbClausesSat()>best.getNbClausesSat() && !LT.contains(s)){
+				best=s;
+			}
+		}
+	 	return best;
+	}
+	
+	public Solution bestVoisinCercle(Formule f,ArrayList<Solution> LT){
+		Solution best=null;
+		int bestNbClausesSat=0;
+		for(int i=0;i<this.litteraux.size();i++){
+			Solution s=(Solution) this.clone();
+			s.getLitteraux().set(i, (short) (-1*this.litteraux.get(i)));
+			s.setNbClausesSat(f);
+			s.setId(i);
+			if(s.getNbClausesSat()>bestNbClausesSat && !LT.contains(s)){
 				best=s;
 			}
 		}
