@@ -286,56 +286,54 @@ public class Formule {
 
 	}
 
-	//Méthode d'optimisation par essaim d'abeilles
-	public Solution beeSwarmOptimisation(int nbIterationsMax,int flip,int nbChancesMax){
-		//BeeInit génère par la méthode beeInit
+	//BeeSwarmOptimisation
+	public Solution BSO(int nbIterationsMax,int flip,int nbChancesMax){
+		//Initialisation des variables
 		Solution sRef=beeInit(),best=sRef.clone();
-
-		//Initialisations
 		ArrayList<Solution> listeTaboue=new ArrayList<Solution>();
-		int nbIteration=0;
-		int indiceTaboue=0,tailleTaboue=this.nbLitteraux;
-		ClasseMain.setNbChances(nbChancesMax);
-		ArrayList<Solution> danse=null;
-
-		//Tant que le nombre de clause SAT est différant du nombre total de clauses
-		//Et que nombre d'itérations est inférieur au nombre max d'itération
-		while(sRef.getNbClausesSat()!=this.nbClauses && nbIteration<nbIterationsMax){
-			//Gestion de la liste taboue selon le principe de tenure
+		int tailleTaboue=this.nbLitteraux,indiceTaboue=0;
+		
+		//Tant que le nombre d'itérations maximal n'est pas atteint
+		for(int nbIterations=0;nbIterations<nbIterationsMax && sRef.getNbClausesSat()<this.nbClauses;nbIterations++){
+			//Si la taille de la liste taboue est attain, supprimer le plus ancien élément
 			if(listeTaboue.size()>=tailleTaboue){
 				listeTaboue.remove(indiceTaboue);
+				//Inserer le sRef dans la liste taboue
+				listeTaboue.add(indiceTaboue, sRef);
 			}
-			//Ajout de sRef à la liste taboue
-			listeTaboue.add(indiceTaboue,sRef);
+			else{
+				listeTaboue.add(sRef);
+			}
+			//Incrémenter l'indice de la liste taboue
 			indiceTaboue=(indiceTaboue+1)%tailleTaboue;
-
-			//Création de la serachArea avec un flip périodique de valeur flip
+			
+			//Génération de la searchArea grace à la méthode flip
 			Iterator<Solution> searchArea=sRef.flipPeriodique(flip).iterator();
-
-			//Vidange/initialisation de la table danse
-			danse=new ArrayList<Solution>();
-
-			//Recherche des abeilles successivement
+			
+			//Création de la table danse vide
+			ArrayList<Solution> danse=new ArrayList<Solution>();
+			
+			//Parcourt de la searchArea
 			while(searchArea.hasNext()){
 				Solution tmp=searchArea.next();
-				//System.out.println("le meilleur voisin à un nombre de clasuses sat= "+bestVoisin.getNbClausesSat());
-				danse.add(tmp.bestVoisinCercle(this, listeTaboue));
+				danse.add(tmp.rechercheVoisinage(listeTaboue,this,20));
 			}
-
+			
 			//Choix du prochain sRef
-			sRef=choixSRef(listeTaboue, danse, best,nbChancesMax);
+			sRef=choixSRef(listeTaboue, danse, best, nbChancesMax);
 			if(sRef==null){
-				System.out.println("Lamentable echec");
-				break;
+				System.out.println("rien à faire toujours null...");
+				return best;
 			}
-
-			//Comparaison du meilleur résultat avec le nouveau sRef
-			if(sRef.getNbClausesSat()>best.getNbClausesSat()){
-				best=sRef.clone();
+			
+			//Mise à jour du best si elle a lieu d'être
+			if(best.getNbClausesSat()<sRef.getNbClausesSat()){
+				best=sRef;
+				System.out.println("nouveau best "+best.getNbClausesSat());
 			}
-			nbIteration++;
+			
 		}
-		System.out.println("La meilleure performance obtenue est "+best.getNbClausesSat());
+		
 		return best;
 	}
 

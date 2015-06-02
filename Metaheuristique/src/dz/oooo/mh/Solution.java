@@ -234,4 +234,48 @@ public class Solution {
 		}
 		return searchArea;
 	}
+	
+	public Solution rechercheVoisinage(ArrayList<Solution> LT,Formule f,int nbIterations){
+		Solution best=this,s=new Solution();
+		ArrayList<Solution> voisinage=this.voisinage(f);
+		
+		//Iterations de la recharche locale
+		for(int iteration=0;iteration<nbIterations;iteration++){
+			int nbClausesSat=0;
+			
+			//Parcourt du voisinage de s
+			for(int i=0;i<voisinage.size();i++){
+				//Si le voisin i est meilleur que le nombre de clauses sat et qu'il n'appertient pas à la liste taboue
+				if(voisinage.get(i).getNbClausesSat()>nbClausesSat && !LT.contains(voisinage.get(i))){
+					nbClausesSat=voisinage.get(i).getNbClausesSat();
+					s=voisinage.get(i);
+				}
+			}
+			if(s.getNbClausesSat()>best.nbClausesSat){
+				best=s;
+			}
+			voisinage=s.voisinage(f);
+		}
+		
+		//si le best est le courent
+		if(best.equals(this)){
+			best=best.diversifier(LT,f);
+		}
+
+		return best;
+	}
+	
+	public Solution diversifier(ArrayList<Solution> LT,Formule f){
+		Solution div=this.clone();
+		
+		//parcourt des litteraux
+		for(int i=0;i<this.litteraux.size();i++){
+			div.getLitteraux().set(i,(short) (div.getLitteraux().get(i)*-1));
+			if(!LT.contains(div)){
+				div.setNbClausesSat(f);
+				break;
+			}
+		}
+		return div;
+	}
 }
